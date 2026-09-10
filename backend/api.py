@@ -3,16 +3,19 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from PIL import Image
 import torch
 import io
+import os
 
 from backend.main import load_trained_model, make_eval_transform, ROOT
 
 app = FastAPI()
 
-# CORS Middleware
+frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
+        frontend_origin,
     ],
     allow_credentials=True,
     allow_methods=["*"],
