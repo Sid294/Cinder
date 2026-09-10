@@ -1,4 +1,8 @@
 from pathlib import Path
+import sys
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import pandas as pd
 import torch
@@ -26,10 +30,10 @@ LABEL_MAP = {"FB": 0, "TB": 0, "FM": 1, "TM": 1}
 
 def build_model():
     try:
-        weights = models.ResNet50_Weights.DEFAULT
-        model = models.resnet50(weights=weights)
+        weights = models.ResNet18_Weights.DEFAULT
+        model = models.resnet18(weights=weights)
     except Exception:
-        model = models.resnet50(pretrained=True)
+        model = models.resnet18(pretrained=True)
     # Replace fc with a simple linear layer (no wrapper)
     model.fc = nn.Linear(model.fc.in_features, 2)
     return model
@@ -228,7 +232,7 @@ def train():
     if best_model_state is not None:
         model.load_state_dict(best_model_state)
     
-    model_path = ROOT.parent / "cinder_model.pth"
+    model_path = ROOT.parent / "models" / "resnet18_finetuned.pt"
     torch.save(model.state_dict(), model_path)
     print(f"Model saved as {model_path.name} (best val acc: {best_val_acc:.2f}%)")
 
@@ -261,7 +265,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--train', action='store_true', help='Run training')
     parser.add_argument('--predict', type=str, help='Path to image to predict')
-    parser.add_argument('--model', type=str, default=str(ROOT.parent / 'cinder_model.pth'), help='Trained model path')
+    parser.add_argument('--model', type=str, default=str(ROOT.parent / 'models' / 'resnet18_finetuned.pt'), help='Trained model path')
     parser.add_argument('--batch', action='store_true', help='Run batch prediction over datasets/raw')
     parser.add_argument('--aggregate', action='store_true', help='Aggregate predictions per-uuid and save CSV')
     parser.add_argument('--show', type=str, help='Show image preview and probs for a path')

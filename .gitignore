@@ -2,3 +2,5 @@ datasets/*
 !datasets/.gitkeep
 !datasets/**/.gitkeep
 .venv/
+!resnet18_model.onnx
+!resnet18_model.onnx.data
