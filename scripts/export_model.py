@@ -20,7 +20,6 @@ torch.onnx.export(
     output_path,
     input_names=["image"],
     output_names=["logits"],
-    dynamic_axes={"image": {0: "batch"}, "logits": {0: "batch"}},
     opset_version=17,
 )
 
