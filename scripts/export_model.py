@@ -5,10 +5,10 @@ from torchvision import models
 from torch import nn
 
 ROOT = Path(__file__).resolve().parent.parent
-model_path = ROOT / "cinder_model.pth"
-output_path = ROOT / "cinder_model.onnx"
+model_path = ROOT / "models" / "resnet18_finetuned.pt"
+output_path = ROOT / "resnet18_model.onnx"
 
-model = models.resnet50(weights=None)
+model = models.resnet18(weights=None)
 model.fc = nn.Linear(model.fc.in_features, 2)
 model.load_state_dict(torch.load(model_path, map_location="cpu"))
 model.eval()

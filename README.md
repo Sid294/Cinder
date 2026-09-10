@@ -21,7 +21,7 @@ Build command: pip install -r requirements.txt
 Start command: uvicorn backend.api:app --host 0.0.0.0 --port $PORT
 ```
 
-After Render gives you an HTTPS URL, set `REACT_APP_API_URL` in Vercel to that URL without a trailing slash. Set the API's `FRONTEND_ORIGIN` to the Vercel URL, then redeploy the frontend so the variable is included in its build. The API uses the lightweight ONNX Runtime and the `cinder_model.onnx` artifact with its accompanying `cinder_model.onnx.data` weights file.
+After Render gives you an HTTPS URL, set `REACT_APP_API_URL` in Vercel to that URL without a trailing slash. Set the API's `FRONTEND_ORIGIN` to the Vercel URL, then redeploy the frontend so the variable is included in its build. The API uses the lightweight ONNX Runtime and the smaller `resnet18_model.onnx` artifact.
 # Cinder
 
 

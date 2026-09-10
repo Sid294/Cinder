@@ -25,7 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-MODEL_PATH = ROOT.parent / "cinder_model.onnx"
+MODEL_PATH = ROOT.parent / "resnet18_model.onnx"
 session = ort.InferenceSession(str(MODEL_PATH), providers=["CPUExecutionProvider"])
 input_name = session.get_inputs()[0].name
 

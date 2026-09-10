@@ -5,8 +5,8 @@
       "use": "@vercel/python",
       "config": {
         "includeFiles": [
-          "cinder_model.onnx",
-          "cinder_model.onnx.data"
+          "resnet18_model.onnx",
+          "resnet18_model.onnx.data"
         ]
       }
     }
