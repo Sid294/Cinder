@@ -2,7 +2,13 @@
   "builds": [
     {
       "src": "api/index.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "includeFiles": [
+          "cinder_model.onnx",
+          "cinder_model.onnx.data"
+        ]
+      }
     }
   ],
   "routes": [

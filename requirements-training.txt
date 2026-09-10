@@ -1,0 +1,10 @@
+-r requirements.txt
+torch
+torchvision
+kagglehub
+pydicom
+pandas
+scikit-image
+requests
+kaggle
+uvicorn

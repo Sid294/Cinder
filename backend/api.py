@@ -1,11 +1,14 @@
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from PIL import Image
-import torch
 import io
 import os
+from pathlib import Path
 
-from backend.main import load_trained_model, make_eval_transform, ROOT
+import numpy as np
+import onnxruntime as ort
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from PIL import Image
+
+ROOT = Path(__file__).resolve().parent
 
 app = FastAPI()
 
@@ -22,11 +25,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load model once when the API starts
-MODEL_PATH = ROOT.parent / "cinder_model.pth"
+MODEL_PATH = ROOT.parent / "cinder_model.onnx"
+session = ort.InferenceSession(str(MODEL_PATH), providers=["CPUExecutionProvider"])
+input_name = session.get_inputs()[0].name
 
-model, device = load_trained_model(MODEL_PATH)
-transform = make_eval_transform()
+
+def make_input(image):
+    image = image.resize((224, 224))
+    pixels = np.asarray(image, dtype=np.float32) / 255.0
+    pixels = (pixels - np.array([0.485, 0.456, 0.406], dtype=np.float32)) / np.array(
+        [0.229, 0.224, 0.225], dtype=np.float32
+    )
+    return np.transpose(pixels, (2, 0, 1))[None, ...].astype(np.float32)
 
 
 @app.post("/predict")
@@ -38,21 +48,14 @@ async def predict(file: UploadFile = File(...)):
         # Open image and convert to RGB
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
-        # Apply same preprocessing as training
-        tensor = transform(image).unsqueeze(0).to(device)
+        tensor = make_input(image)
 
         # Run the model
-        with torch.no_grad():
-            output = model(tensor)
-
-            # Convert logits to probabilities
-            probs = torch.softmax(output, dim=1)[0]
-
-            # Get predicted class index
-            prediction_index = torch.argmax(probs).item()
-
-            # Confidence is the probability of the predicted class
-            confidence = float(probs[prediction_index])
+        output = session.run(None, {input_name: tensor})[0][0]
+        exp_output = np.exp(output - np.max(output))
+        probs = exp_output / exp_output.sum()
+        prediction_index = int(np.argmax(probs))
+        confidence = float(probs[prediction_index])
 
         # Return data formatted for React frontend
         return {
@@ -64,7 +67,7 @@ async def predict(file: UploadFile = File(...)):
             "confidence": confidence,
             "probabilities": {
                 "non-cancerous": float(probs[0]),
-                "cancerous": float(probs[1])
+                "cancerous": float(probs[1]),
             }
         }
 

@@ -28,14 +28,14 @@ The backend endpoint will be available at:
 https://your-backend-project.vercel.app/predict
 ```
 
-Vercel must be able to install the packages in `requirements.txt` and include `cinder_model.pth`. If the backend deployment exceeds Vercel's function size or memory limits because of PyTorch, keep the frontend on Vercel and deploy the backend to a long-running Python host instead.
+The Vercel API uses the lightweight packages in `requirements.txt` and the exported `cinder_model.onnx` artifact, including its `cinder_model.onnx.data` weight file. Training-only packages remain in `requirements-training.txt`.
 
 ## Deploy the API
 
 Create a Render web service from this repository. Render can use the included `render.yaml`, or these settings:
 
 ```text
-Build command: pip install -r requirements.txt
+Build command: pip install -r requirements-training.txt
 Start command: uvicorn backend.api:app --host 0.0.0.0 --port $PORT
 ```
 
